@@ -22,7 +22,8 @@
     text: "<p>In this experiment, you will see a flashing light strobe N times. Your task is to indicate whether the duration of the first flash was longer or shorter than the rest of the flashes.</p>" +
       "<p>If the <strong>first flash</strong> was <strong>longer</strong> than the rest, press the <strong>F</strong> key.</p>" +
       "<p>If the <strong>first flash</strong> was <strong>shorter</strong> than the rest, press the <strong>J</strong> key.</p>" +
-      "<p>Press any key to begin.</p>"
+      "<p>Press any key to begin.</p>",
+    timing_post_trial: 2000
   };
 
   var test_stimuli = [
@@ -35,6 +36,7 @@
   var test_block = {
     type: 'single-stim',
     choices: ['F'],
+    timing_response: 1500,
     timeline: all_trials
   }
 
