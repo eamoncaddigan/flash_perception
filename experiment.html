@@ -5,6 +5,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="jspsych/jspsych.js"></script>
     <script src="jspsych/plugins/jspsych-text.js"></script>
+    <script src="jspsych/plugins/jspsych-single-stim.js"></script>
     <link href="jspsych/css/jspsych.css" rel="stylesheet" type="text/css"></link>
   </head>
   <body>
@@ -24,9 +25,22 @@
       "<p>Press any key to begin.</p>"
   };
 
+  var blue_trial = {
+    type: 'single-stim',
+    stimulus: 'img/blue.png',
+    choices: ['F']
+  };
+
+  var orange_trial = {
+    type: 'single-stim',
+    stimulus: 'img/orange.png',
+    choices: ['F']
+  };
+
   var timeline = [];
   timeline.push(welcome_block);
   timeline.push(instructions_block);
+  timeline.push(blue_trial, orange_trial);
 
   jsPsych.init({
     timeline: timeline
