@@ -12,6 +12,10 @@
   </body>
   <script>
 
+  var post_trial_gap = function() {
+    return Math.floor( Math.random() * 1500 ) + 750;
+  };
+
   var welcome_block = {
     type: "text",
     text: "Welcome to the experiment. Press any key to begin."
@@ -43,6 +47,7 @@
     type: 'single-stim',
     choices: ['F'],
     timing_response: 1500,
+    timing_post_trial: post_trial_gap,
     timeline: all_trials
   }
 
