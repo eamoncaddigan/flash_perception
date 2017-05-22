@@ -25,22 +25,24 @@
       "<p>Press any key to begin.</p>"
   };
 
-  var blue_trial = {
-    type: 'single-stim',
-    stimulus: 'img/blue.png',
-    choices: ['F']
-  };
+  var test_stimuli = [
+    {stimulus: 'img/blue.png'},
+    {stimulus: 'img/orange.png'}
+  ];
 
-  var orange_trial = {
-    type: 'single-stim',
-    stimulus: 'img/orange.png',
-    choices: ['F']
-  };
+  var all_trials = jsPsych.randomization.repeat(test_stimuli, 10)
 
+  var test_block = {
+    type: 'single-stim',
+    choices: ['F'],
+    timeline: all_trials
+  }
+
+ 
   var timeline = [];
   timeline.push(welcome_block);
   timeline.push(instructions_block);
-  timeline.push(blue_trial, orange_trial);
+  timeline.push(test_block);
 
   jsPsych.init({
     timeline: timeline
