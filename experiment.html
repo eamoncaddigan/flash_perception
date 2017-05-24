@@ -12,17 +12,18 @@
   </body>
   <script>
 
+  var number_flashes = 3;
+
   /* Create the timing info for the trials */
-  var number_flashes = 2;
   function createTrials() {
     var number_trials = 10;
     var duty_cycle = 0.5;
     var period_ms = 1000;
     var timeout_ms = 5000;
 
-    var trials = []
+    var trials = [];
     for (var trial_num = 0; trial_num < number_trials; trial_num++) {
-      var trial = []
+      var trial = [];
       for (var flash = 0; flash < number_flashes; flash++) {
         trial.push(Math.round(duty_cycle * period_ms));
         trial.push(Math.round((1-duty_cycle) * period_ms));
@@ -33,7 +34,17 @@
       })
     }
 
-    return trials
+    return trials;
+  }
+
+  /* Create the stimulus sequence for the trials */
+  function createStimuli() {
+    var stimuli = [];
+    for (var i = 0; i < number_flashes; i++) {
+      stimuli.push('img/blue.png');
+      stimuli.push('img/orange.png');
+    }
+    return stimuli;
   }
 
   /* Summarize the data from the experiment */
@@ -65,7 +76,7 @@
 
   var welcome_block = {
     type: "text",
-    text: "Welcome to the experiment. Press any key to begin."
+    text: "Welcome to the experiment. Press any key to continue."
   };
 
   var instructions_block = {
@@ -92,11 +103,9 @@
   }
 */
 
-  //var all_trials = jsPsych.randomization.repeat(test_stimuli, 5)
-
   var test_block = {
     type: 'multi-stim-multi-response',
-    stimuli: ['img/blue.png', 'img/orange.png', 'img/blue.png', 'img/orange.png'],
+    stimuli: createStimuli(),
     choices: [[70, 74]],
     response_ends_trial: true,
     timing_post_trial: post_trial_gap,
