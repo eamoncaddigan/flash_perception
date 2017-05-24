@@ -12,6 +12,26 @@
   </body>
   <script>
 
+  /* Create the timing info for the trials */
+  var number_flashes = 2;
+  function createTrials() {
+    var number_trials = 10;
+    var duty_cycle = 0.5;
+    var period_ms = 1000;
+
+    var trials = []
+    for (var trial_num = 0; trial_num < number_trials; trial_num++) {
+      var trial = []
+      for (var flash = 0; flash < number_flashes; flash++) {
+        trial.push(Math.round(duty_cycle * period_ms));
+        trial.push(Math.round((1-duty_cycle) * period_ms));
+      }
+      trials.push({timing_stim: trial})
+    }
+
+    return trials
+  }
+
   /* Summarize the data from the experiment */
   function getSubjectData() {
     var trials = jsPsych.data.getTrialsOfType('single-stim');
@@ -72,8 +92,8 @@
 
   var test_block = {
     type: 'multi-stim-multi-response',
-    stimuli: ['img/blue.png', 'img/orange.png', 'img/blue.png'],
-    timing_stim: [1000, 1000, 1000],
+    stimuli: ['img/blue.png', 'img/orange.png', 'img/blue.png', 'img/orange.png'],
+    //timing_stim: [1000, 1000, 1000],
     choices: [[70, 74]],
     //timing_response: 1500,
     //timing_post_trial: post_trial_gap,
@@ -86,6 +106,7 @@
       }
       jsPsych.data.addDataToLastTrial({correct: correct});
     },*/
+    timeline: createTrials()
   }
 
  
