@@ -37,7 +37,8 @@
         timing_response: period_ms*number_flashes + timeout_ms,
         data: { 
           period_ms: period_ms,
-          first_flash_ms: first_flash_ms
+          first_flash_ms: first_flash_ms,
+          is_longer: first_flash_ms > (duty_cycle * period_ms)
         }
       })
     }
@@ -96,8 +97,8 @@
     text: "<p>In this experiment, you will see a flashing light strobe " +
       number_flashes + 
       " times. Your task is to indicate whether the duration of the first flash was longer or shorter than the rest of the flashes.</p>" +
-      "<p>If the <strong>first flash</strong> was <strong>longer</strong> than the rest, press the <strong>F</strong> key.</p>" +
-      "<p>If the <strong>first flash</strong> was <strong>shorter</strong> than the rest, press the <strong>J</strong> key.</p>" +
+      "<p>If the <strong>first flash</strong> was <strong>shorter</strong> than the rest, press the <strong>F</strong> key.</p>" +
+      "<p>If the <strong>first flash</strong> was <strong>longer</strong> than the rest, press the <strong>J</strong> key.</p>" +
       "<p>Press any key to begin.</p>",
     timing_post_trial: 2000
   };
@@ -124,19 +125,22 @@
     choices: [[70, 74]],
     response_ends_trial: true,
     timing_post_trial: post_trial_gap,
-    /*on_finish: function(data) {
-      var correct = false;
-      if (data.response == 'go' && data.rt > -1) {
-        correct = true;
-      } else if (data.response == 'no-go' && data.rt == -1) {
-        correct = true;
+    on_finish: function(data) {
+      var resp_longer = null;
+      var key_presses = JSON.parse(data.key_press);
+      if (key_presses.length > 0) {
+        if (key_presses[0] == 70) {
+          resp_longer = false;
+        } else if (key_presses[0] == 74) {
+          resp_longer = true;
+        }
       }
-      jsPsych.data.addDataToLastTrial({correct: correct});
-    },*/
+      jsPsych.data.addDataToLastTrial({respond_longer: resp_longer});
+    },
     timeline: createTrials()
   }
 
- 
+
   var timeline = [];
   timeline.push(welcome_block);
   timeline.push(instructions_block);
