@@ -25,12 +25,11 @@
     var trials = [];
     for (var trial_num = 0; trial_num < number_trials; trial_num++) {
       // First flash
-      var trial = [Math.round(first_flash_ms), 
-        Math.round((1-duty_cycle) * period_ms)];
+      var trial = [first_flash_ms, (1-duty_cycle) * period_ms];
       // Subsequent flashes
       for (var flash = 1; flash < number_flashes; flash++) {
-        trial.push(Math.round(duty_cycle * period_ms));
-        trial.push(Math.round((1-duty_cycle) * period_ms));
+        trial.push(duty_cycle * period_ms);
+        trial.push((1-duty_cycle) * period_ms);
       }
 
       trials.push({
