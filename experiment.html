@@ -30,7 +30,11 @@
       }
       trials.push({
         timing_stim: trial,
-        timing_response: period_ms*number_flashes + timeout_ms
+        timing_response: period_ms*number_flashes + timeout_ms,
+        data: { 
+          period_ms: period_ms,
+          first_flash_ms: duty_cycle*period_ms
+        }
       })
     }
 
