@@ -12,13 +12,13 @@
   </body>
   <script>
 
-  var number_flashes = 3;
+  var number_flashes = 4;
 
   /* Create the timing info for the trials */
   function createTrials() {
     var number_trials = 10;
     var duty_cycle = 0.5;
-    var period_ms = 1000;
+    var period_ms = 1598; // Based on my water boiler. :)
     var timeout_ms = 5000;
 
     var trials = [];
@@ -76,7 +76,7 @@
 
   var welcome_block = {
     type: "text",
-    text: "Welcome to the experiment. Press any key to continue."
+    text: "Welcome to the experiment. Press any key to start."
   };
 
   var instructions_block = {
