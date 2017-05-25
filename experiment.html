@@ -18,16 +18,21 @@
   function createTrials() {
     var number_trials = 10;
     var duty_cycle = 0.5;
+    var first_flash_ms = 1200;
     var period_ms = 1598; // Based on my water boiler. :)
     var timeout_ms = 5000;
 
     var trials = [];
     for (var trial_num = 0; trial_num < number_trials; trial_num++) {
-      var trial = [];
-      for (var flash = 0; flash < number_flashes; flash++) {
+      // First flash
+      var trial = [Math.round(first_flash_ms), 
+        Math.round((1-duty_cycle) * period_ms)];
+      // Subsequent flashes
+      for (var flash = 1; flash < number_flashes; flash++) {
         trial.push(Math.round(duty_cycle * period_ms));
         trial.push(Math.round((1-duty_cycle) * period_ms));
       }
+
       trials.push({
         timing_stim: trial,
         timing_response: period_ms*number_flashes + timeout_ms,
