@@ -23,28 +23,34 @@
     var timeout_ms = 5000;
 
     var trials = [];
-    for (var trial_num = 0; trial_num < number_trials; trial_num++) {
-      // First flash
-      var trial = [first_flash_ms, (1-duty_cycle) * period_ms];
-      // Subsequent flashes
-      for (var flash = 1; flash < number_flashes; flash++) {
-        trial.push(duty_cycle * period_ms);
-        trial.push((1-duty_cycle) * period_ms);
-      }
-
-      trials.push({
-        timing_stim: trial,
-        timing_response: period_ms*number_flashes + timeout_ms,
-        data: { 
-          period_ms: period_ms,
-          first_flash_ms: first_flash_ms,
-          is_longer: first_flash_ms > (duty_cycle * period_ms)
+    for (period_ms = 1000; period_ms <= 2000; period_ms += 200) {
+      var later_flash_ms = duty_cycle * period_ms;
+      for (first_flash_ms = later_flash_ms - 290;
+           first_flash_ms <= later_flash_ms + 290;
+           first_flash_ms += 20) {
+        // First flash
+        var trial = [first_flash_ms, (1-duty_cycle) * period_ms];
+        // Subsequent flashes
+        for (var flash = 1; flash < number_flashes; flash++) {
+          trial.push(later_flash_ms);
+          trial.push((1-duty_cycle) * period_ms);
         }
-      })
+
+        trials.push({
+          timing_stim: trial,
+          timing_response: period_ms*number_flashes + timeout_ms,
+          data: { 
+            period_ms: period_ms,
+            first_flash_ms: first_flash_ms,
+            is_longer: first_flash_ms > later_flash_ms
+          }
+        })
+      }
     }
 
     return trials;
   }
+  // TODO: repeat the trials a bunch
 
   /* Create the stimulus sequence for the trials */
   function createStimuli() {
