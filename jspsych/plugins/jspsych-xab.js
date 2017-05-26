@@ -12,7 +12,69 @@ jsPsych.plugins.xab = (function() {
 
   var plugin = {};
 
-  jsPsych.pluginAPI.registerPreload('xab', 'stimuli', 'image');
+  jsPsych.pluginAPI.registerPreload('xab', 'stimuli', 'image',function(t){ return !t.is_html || t.is_html == 'undefined'});
+
+  plugin.info = {
+    name: 'xab',
+    description: '',
+    parameters: {
+      stimulus: {
+        type: [jsPsych.plugins.parameterType.STRING],
+        array: true,
+        default: undefined,
+        no_function: false,
+        description: ''
+      },
+      is_html: {
+        type: [jsPsych.plugins.parameterType.BOOL],
+        default: false,
+        no_function: false,
+        description: ''
+      },
+      left_key: {
+        type: [jsPsych.plugins.parameterType.KEYCODE],
+        default: 'q',
+        no_function: false,
+        description: ''
+      },
+      right_key: {
+        type: [jsPsych.plugins.parameterType.KEYCODE],
+        default: 'p',
+        no_function: false,
+        description: ''
+      },
+      prompt: {
+        type: [jsPsych.plugins.parameterType.STRING],
+        default: '',
+        no_function: false,
+        description: ''
+      },
+      timing_x: {
+        type: [jsPsych.plugins.parameterType.INT],
+        default: 1000,
+        no_function: false,
+        description: ''
+      },
+      timing_xab_gap: {
+        type: [jsPsych.plugins.parameterType.INT],
+        default: 1000,
+        no_function: false,
+        description: ''
+      },
+      timing_ab: {
+        type: [jsPsych.plugins.parameterType.INT],
+        default: -1,
+        no_function: false,
+        description: ''
+      },
+      timing_response: {
+        type: [jsPsych.plugins.parameterType.INT],
+        default: -1,
+        no_function: false,
+        description: ''
+      }
+    }
+  }
 
   plugin.trial = function(display_element, trial) {
 
@@ -44,36 +106,26 @@ jsPsych.plugins.xab = (function() {
       trial.b_path = trial.stimuli[2];
     }
 
-    // this array holds handlers from setTimeout calls
-    // that need to be cleared if the trial ends early
-    var setTimeoutHandlers = [];
-
     // how we display the content depends on whether the content is
     // HTML code or an image path.
     if (!trial.is_html) {
-      display_element.append($('<img>', {
-        src: trial.x_path,
-        "class": 'jspsych-xab-stimulus'
-      }));
+      display_element.innerHTML = '<img class="jspsych-xab-stimulus" src="'+trial.x_path+'"></img>';
     } else {
-      display_element.append($('<div>', {
-        "class": 'jspsych-xab-stimulus',
-        html: trial.x_path
-      }));
+      display_element.innerHTML = '<div class="jspsych-xab-stimulus">'+trial.x_path+'</div>';
     }
 
     // start a timer of length trial.timing_x to move to the next part of the trial
-    setTimeout(function() {
+    jsPsych.pluginAPI.setTimeout(function() {
       showBlankScreen();
     }, trial.timing_x);
 
 
     function showBlankScreen() {
       // remove the x stimulus
-      $('.jspsych-xab-stimulus').remove();
+      display_element.innerHTML = '';
 
       // start timer
-      setTimeout(function() {
+      jsPsych.pluginAPI.setTimeout(function() {
         showSecondStimulus();
       }, trial.timing_xab_gap);
     }
@@ -88,48 +140,43 @@ jsPsych.plugins.xab = (function() {
         images = [trial.b_path, trial.a_path];
       }
 
+      if (!trial.is_html) {
+        display_element.innerHTML = '<img class="jspsych-xab-stimulus" src="'+trial.x_path+'"></img>';
+      } else {
+        display_element.innerHTML = '<div class="jspsych-xab-stimulus">'+trial.x_path+'</div>';
+      }
       // show the options
       if (!trial.is_html) {
-        display_element.append($('<img>', {
-          "src": images[0],
-          "class": 'jspsych-xab-stimulus left'
-        }));
-        display_element.append($('<img>', {
-          "src": images[1],
-          "class": 'jspsych-xab-stimulus right'
-        }));
+        display_element.innerHTML += '<img class="jspsych-xab-stimulus left" src="'+images[0]+'"></img>';
+        display_element.innerHTML += '<img class="jspsych-xab-stimulus right" src="'+images[1]+'"></img>';
       } else {
-        display_element.append($('<div>', {
-          "class": 'jspsych-xab-stimulus left',
-          html: images[0]
-        }));
-        display_element.append($('<div>', {
-          "class": 'jspsych-xab-stimulus right',
-          html: images[1]
-        }));
+        display_element.innerHTML += '<div class="jspsych-xab-stimulus left">'+images[0]+'</div>';
+        display_element.innerHTML += '<div class="jspsych-xab-stimulus right">'+images[1]+'</div>';
       }
 
       if (trial.prompt !== "") {
-        display_element.append(trial.prompt);
+        display_element.innerHTML += trial.prompt;
       }
 
       // if timing_ab is > 0, then we hide the stimuli after timing_ab milliseconds
       if (trial.timing_ab > 0) {
-        setTimeoutHandlers.push(setTimeout(function() {
-          $('.jspsych-xab-stimulus').css('visibility', 'hidden');
-        }, trial.timing_ab));
+        jsPsych.pluginAPI.setTimeout(function() {
+          var matches = display_element.querySelectorAll('.jspsych-xab-stimulus');
+          for(var i=0; i<matches.length; i++){
+            matches[i].style.visibility = 'hidden';
+          }
+        }, trial.timing_ab);
       }
 
       // if timing_response > 0, then we end the trial after timing_response milliseconds
       if (trial.timing_response > 0) {
-        var t2 = setTimeout(function() {
+        jsPsych.pluginAPI.setTimeout(function() {
           end_trial({
             rt: -1,
             correct: false,
             key: -1
           });
         }, trial.timing_response);
-        setTimeoutHandlers.push(t2);
       }
 
       // create the function that triggers when a key is pressed.
@@ -157,9 +204,7 @@ jsPsych.plugins.xab = (function() {
 
       var end_trial = function(info) {
         // kill any remaining setTimeout handlers
-        for (var i = 0; i < setTimeoutHandlers.length; i++) {
-          clearTimeout(setTimeoutHandlers[i]);
-        }
+        jsPsych.pluginAPI.clearAllTimeouts();
 
         jsPsych.pluginAPI.cancelKeyboardResponse(keyboardListener);
 
@@ -171,7 +216,7 @@ jsPsych.plugins.xab = (function() {
           "key_press": info.key
         };
 
-        display_element.html(''); // remove all
+        display_element.innerHTML = ''; // remove all
 
         // move on to the next trial after timing_post_trial milliseconds
         jsPsych.finishTrial(trial_data);

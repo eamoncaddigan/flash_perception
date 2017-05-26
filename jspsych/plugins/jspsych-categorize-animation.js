@@ -12,9 +12,84 @@ jsPsych.plugins["categorize-animation"] = (function() {
 
   jsPsych.pluginAPI.registerPreload('categorize-animation', 'stimuli', 'image');
 
+  plugin.info = {
+    name: 'categorize-animation',
+    description: '',
+    parameters: {
+      stimuli: {
+        type: [jsPsych.plugins.parameterType.ARRAY],
+        default: undefined,
+        no_function: false,
+        description: ''
+      },
+      key_answer: {
+        type: [jsPsych.plugins.parameterType.KEYCODE],
+        default: undefined,
+        no_function: false,
+        description: ''
+      },
+      choices: {
+        type: [jsPsych.plugins.parameterType.KEYCODE],
+        default: jsPsych.ALL_KEYS,
+        no_function: false,
+        array: true,
+        description: ''
+      },
+      text_answer: {
+        type: [jsPsych.plugins.parameterType.STRING],
+        default: '',
+        no_function: false,
+        description: ''
+      },
+      correct_text: {
+        type: [jsPsych.plugins.parameterType.STRING],
+        default: 'Correct.',
+        no_function: false,
+        description: ''
+      },
+      incorrect_text: {
+        type: [jsPsych.plugins.parameterType.STRING],
+        default: 'Wrong.',
+        no_function: false,
+        description: ''
+      },
+      frame_time: {
+        type: [jsPsych.plugins.parameterType.INT],
+        default: 250,
+        no_function: false,
+        description: ''
+      },
+      sequence_reps: {
+        type: [jsPsych.plugins.parameterType.INT],
+        default: 1,
+        no_function: false,
+        description: ''
+      },
+      allow_response_before_complete: {
+        type: [jsPsych.plugins.parameterType.BOOL],
+        default: false,
+        no_function: false,
+        description: ''
+      },
+      timing_feedback_duration: {
+        type: [jsPsych.plugins.parameterType.INT],
+        default: 2000,
+        no_function: false,
+        description: ''
+      },
+      prompt: {
+        type: [jsPsych.plugins.parameterType.STRING],
+        default: '',
+        no_function: false,
+        description: ''
+      },
+    }
+  }
+
   plugin.trial = function(display_element, trial) {
 
     // set default values
+    trial.choices = trial.choices || jsPsych.ALL_KEYS;
     trial.sequence_reps = trial.sequence_reps || 1;
     trial.key_answer = trial.key_answer;
     trial.text_answer = (typeof trial.text_answer === 'undefined') ? "" : trial.text_answer;
@@ -44,7 +119,7 @@ jsPsych.plugins["categorize-animation"] = (function() {
 
     // show animation
     var animate_interval = setInterval(function() {
-      display_element.html(""); // clear everything
+      display_element.innerHTML = ''; // clear everything
       animate_frame++;
       if (animate_frame == trial.stimuli.length) {
         animate_frame = 0;
@@ -57,23 +132,20 @@ jsPsych.plugins["categorize-animation"] = (function() {
       }
 
       if (showAnimation) {
-        display_element.append($('<img>', {
-          "src": trial.stimuli[animate_frame],
-          "class": 'jspsych-categorize-animation-stimulus'
-        }));
+        display_element.innerHTML += '<img src="'+trial.stimuli[animate_frame]+'" class="jspsych-categorize-animation-stimulus"></img>';
       }
 
       if (!responded && trial.allow_response_before_complete) {
         // in here if the user can respond before the animation is done
         if (trial.prompt !== "") {
-          display_element.append(trial.prompt);
+          display_element.innerHTML += trial.prompt;
         }
       } else if (!responded) {
         // in here if the user has to wait to respond until animation is done.
         // if this is the case, don't show the prompt until the animation is over.
         if (!showAnimation) {
           if (trial.prompt !== "") {
-            display_element.append(trial.prompt);
+            display_element.innerHTML += trial.prompt;
           }
         }
       } else {
@@ -86,12 +158,12 @@ jsPsych.plugins["categorize-animation"] = (function() {
         } else {
           feedback_text = trial.incorrect_text.replace("%ANS%", trial.text_answer);
         }
-        display_element.append(feedback_text);
+        display_element.innerHTML += feedback_text;
 
         // set timeout to clear feedback
         if (!timeoutSet) {
           timeoutSet = true;
-          setTimeout(function() {
+          jsPsych.pluginAPI.setTimeout(function() {
             endTrial();
           }, trial.timing_feedback_duration);
         }
@@ -139,7 +211,7 @@ jsPsych.plugins["categorize-animation"] = (function() {
 
     function endTrial() {
       clearInterval(animate_interval); // stop animation!
-      display_element.html(''); // clear everything
+      display_element.innerHTML = ''; // clear everything
       jsPsych.finishTrial(trial_data);
     }
   };
