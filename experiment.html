@@ -12,7 +12,7 @@
   </body>
   <script>
 
-  var number_trials = 10;
+  var number_trials = 4;
   var number_flashes = 4;
 
   /* Create the timing info for the trials */
@@ -140,15 +140,29 @@
     timing_post_trial: post_trial_gap,
     on_finish: function(data) {
       var resp_longer = null;
+      var resp_time = null;
+
+      var response_times = JSON.parse(data.rt);
       var key_presses = JSON.parse(data.key_press);
       if (key_presses.length > 0) {
+        /* Determine longer/shrter response */
         if (key_presses[0] == 70) {
           resp_longer = false;
         } else if (key_presses[0] == 74) {
           resp_longer = true;
         }
+
+        /* Find the "true" response time */
+        if (response_times[0] > -1) {
+          resp_time = response_times[0] - 
+            (data.first_flash_ms + data.period_ms);
+        }
       }
-      jsPsych.data.addDataToLastTrial({respond_longer: resp_longer});
+
+      jsPsych.data.addDataToLastTrial({
+        respond_longer: resp_longer,
+        response_time: resp_time
+      });
     },
     timeline: createTrials()
   }
