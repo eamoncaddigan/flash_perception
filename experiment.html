@@ -22,13 +22,13 @@
     var timeout_ms = 5000;
 
     var trials = [];
-    for (var period_ms = 1000; period_ms <= 2000; period_ms += 200) {
+    for (var period_ms = 1400; period_ms <= 1800; period_ms += 200) {
       var later_flash_ms = duty_cycle * period_ms;
       var off_flash_ms = (1-duty_cycle) * period_ms;
 
-      for (var first_flash_ms = later_flash_ms - 290;
-           first_flash_ms <= later_flash_ms + 290;
-           first_flash_ms += 20) {
+      for (var first_flash_ms = later_flash_ms - 300;
+           first_flash_ms <= later_flash_ms + 300;
+           first_flash_ms += 40) {
         // First flash
         var trial = [first_flash_ms, off_flash_ms];
 
@@ -64,10 +64,10 @@
     var stimuli = [];
     for (var i = 0; i < number_flashes; i++) {
       stimuli.push("<svg height=\"100\" width=\"100\">" +
-        "<circle cx=\"50\" cy=\"50\" r=\"40\" fill=\"black\" />" +
+        "<circle cx=\"50\" cy=\"50\" r=\"30\" fill=\"gray\" />" +
         "</svg>");
       stimuli.push("<svg height=\"100\" width=\"100\">" +
-        "<circle cx=\"50\" cy=\"50\" r=\"40\" fill=\"white\" />" +
+        "<circle cx=\"50\" cy=\"50\" r=\"30\" fill=\"white\" />" +
         "</svg>");
     }
     return stimuli;
