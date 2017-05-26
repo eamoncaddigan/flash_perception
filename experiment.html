@@ -12,45 +12,52 @@
   </body>
   <script>
 
+  var number_trials = 10;
   var number_flashes = 4;
 
   /* Create the timing info for the trials */
   function createTrials() {
-    var number_trials = 10;
     var duty_cycle = 0.5;
-    var first_flash_ms = 1200;
-    var period_ms = 1598; // Based on my water boiler. :)
+    //var period_ms = 1598; // Based on my water boiler. :)
     var timeout_ms = 5000;
 
     var trials = [];
-    for (period_ms = 1000; period_ms <= 2000; period_ms += 200) {
+    for (var period_ms = 1000; period_ms <= 2000; period_ms += 200) {
       var later_flash_ms = duty_cycle * period_ms;
-      for (first_flash_ms = later_flash_ms - 290;
+      var off_flash_ms = (1-duty_cycle) * period_ms;
+
+      for (var first_flash_ms = later_flash_ms - 290;
            first_flash_ms <= later_flash_ms + 290;
            first_flash_ms += 20) {
         // First flash
-        var trial = [first_flash_ms, (1-duty_cycle) * period_ms];
+        var trial = [first_flash_ms, off_flash_ms];
+
         // Subsequent flashes
-        for (var flash = 1; flash < number_flashes; flash++) {
+        for (var i = 1; i < number_flashes; i++) {
           trial.push(later_flash_ms);
-          trial.push((1-duty_cycle) * period_ms);
+          trial.push(off_flash_ms);
         }
 
         trials.push({
           timing_stim: trial,
-          timing_response: period_ms*number_flashes + timeout_ms,
+          timing_response: first_flash_ms + off_flash_ms + 
+            period_ms*(number_flashes-1) + timeout_ms,
           data: { 
             period_ms: period_ms,
             first_flash_ms: first_flash_ms,
-            is_longer: first_flash_ms > later_flash_ms
+            flash_time_diff: first_flash_ms - later_flash_ms
           }
         })
       }
     }
 
-    return trials;
+    // Scramble and repeat the trials so that there are enough of them
+    trials = jsPsych.randomization.repeat(trials,
+      Math.ceil(number_trials / trials.length));
+
+    // Select the first num_trials elements in the trials array
+    return trials.slice(0, number_trials);
   }
-  // TODO: repeat the trials a bunch
 
   /* Create the stimulus sequence for the trials */
   function createStimuli() {
