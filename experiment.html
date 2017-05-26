@@ -16,10 +16,10 @@
   var break_every = 2;
   var number_flashes = 4;
 
-  /* Create the timing info for the trials */
+  /* Create the timing info for all trials */
   function createTrials() {
+    //period_ms = 1598 worked for my water boiler. :)
     var duty_cycle = 0.5;
-    //var period_ms = 1598; // Based on my water boiler. :)
     var timeout_ms = 5000;
 
     var trials = [];
@@ -74,76 +74,7 @@
     return stimuli;
   }
 
-  /* Summarize the data from the experiment */
-  /* XXX - This doesn't work because getData() is not implemented */
-  /*
-  function getSubjectData() {
-    var trials = jsPsych.data.getData([{type: 'multi-stim-multi-response'}]);
-
-    var sum_rt = 0;
-    var correct_trial_count = 0;
-    var correct_rt_count = 0;
-
-    for (var i = 0; i < trials.length; i++) {
-      var is_correct = ((trials[i].flash_time_diff > 0) && trials[i].respond_longer) || ((trials[i].flash_time_diff < 0) && !trials[i].respond_longer)
-      if (is_correct == true) {
-        correct_trial_count++;
-
-        if (trials[i].rt > -1) {
-          sum_rt += trials[i].response_time;
-          correct_rt_count++;
-        }
-      }
-    }
-
-    return {
-      rt: Math.floor(sum_rt / correct_rt_count),
-      accuracy: Math.floor(correct_trial_count / trials.length * 100)
-    }
-  }
-
-  var debrief_block = {
-    type: "text",
-    text: function() {
-      var subject_data = getSubjectData();
-      return "<p>You responded correctly on " +
-        subject_data.accuracy +
-        "% of the trials</p>" +
-        "<p>Your average response time was <strong>" +
-        subject_data.rt +
-        " ms</strong>. Press any key to complete the experiment. " +
-        "Thank you!</p>";
-    }
-  }
-  */
-
-  var post_trial_gap = function() {
-    return Math.floor( Math.random() * 1500 ) + 750;
-  };
-
-  var welcome_block = {
-    type: "text",
-    text: "Welcome to the experiment. Press any key to start."
-  };
-
-  var instructions_block = {
-    type: "text",
-    text: "<p>In this experiment, you will see a flashing light strobe " +
-      number_flashes + 
-      " times. Your task is to indicate whether the duration of the first flash was longer or shorter than the rest of the flashes.</p>" +
-      "<p>If the <strong>first flash</strong> was <strong>shorter</strong> than the rest, press the <strong>F</strong> key.</p>" +
-      "<p>If the <strong>first flash</strong> was <strong>longer</strong> than the rest, press the <strong>J</strong> key.</p>" +
-      "<p>Press any key to continue.</p>",
-    timing_post_trial: post_trial_gap
-  };
-
-  var break_block = {
-    type: "text",
-    text: "Press any key to resume the experiment.",
-    timing_post_trial: post_trial_gap
-  }
-
-
+  / * Create a trial object that will represent a group of trials */
   function createTestBlock(trials) {
     return {
       type: 'multi-stim-multi-response',
@@ -181,13 +112,49 @@
       timeline: trials
     }
   }
+
+  var post_trial_gap = function() {
+    return Math.floor( Math.random() * 1500 ) + 750;
+  };
+
+  var welcome_block = {
+    type: "text",
+    text: "Welcome to the experiment. Press any key to start."
+  };
+
+  var instructions_block = {
+    type: "text",
+    text: "<p>In this experiment, you will see a flashing light strobe " +
+      number_flashes + 
+      " times. Your task is to indicate whether the duration of the first flash was longer or shorter than the rest of the flashes.</p>" +
+      "<p>If the <strong>first flash</strong> was <strong>shorter</strong> than the rest, press the <strong>F</strong> key.</p>" +
+      "<p>If the <strong>first flash</strong> was <strong>longer</strong> than the rest, press the <strong>J</strong> key.</p>" +
+      "<p>Press any key to continue.</p>",
+    timing_post_trial: post_trial_gap
+  };
+
+  var break_block = {
+    type: "text",
+    text: "<p>Break time.</p>" +
+      "<p>If the <strong>first flash</strong> was <strong>shorter</strong> than the rest, press the <strong>F</strong> key.</p>" +
+      "<p>If the <strong>first flash</strong> was <strong>longer</strong> than the rest, press the <strong>J</strong> key.</p>" +
+      "<p>Press any key to continue.</p>",
+    timing_post_trial: post_trial_gap
+  }
+
+  var finish_block = {
+    type: "text",
+    text: "Thank you for participating!"
+  }
+
+
+  /* Create the timeline */
   var all_trials = createTrials();
-
-
   var timeline = [];
   timeline.push(welcome_block);
   timeline.push(instructions_block);
   for (var i = 0; i < number_trials; i += break_every) {
+    // Add the trials
     var sub_block = createTestBlock(all_trials.slice(i, 
       Math.min(number_trials, i+break_every)));
     timeline.push(sub_block);
@@ -197,7 +164,7 @@
       timeline.push(break_block);
     }
   }
-  //timeline.push(test_block);
+  timeline.push(finish_block);
 
   jsPsych.init({
     timeline: timeline,
