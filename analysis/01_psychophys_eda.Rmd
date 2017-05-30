@@ -1,0 +1,52 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r setup}
+knitr::opts_knit$set(root.dir = rprojroot::find_root(rprojroot::is_rstudio_project))
+```
+
+EDA on psychophysics data.
+
+```{r}
+library(dplyr)
+library(readr)
+library(jsonlite)
+
+session1 <- fromJSON(read_file("../data/ec_01.json"))
+summary(session1)
+```
+
+Quick summary of the trials
+
+```{r}
+library(ggplot2)
+
+session1Trials <- session1 %>%
+  filter(trial_type == "multi-stim-multi-response")
+
+ggplot(session1Trials, aes(response_time)) +
+  geom_freqpoly(aes(color = respond_longer))
+```
+
+Hoping for a sigmoidal curve here...
+
+```{r}
+ggplot(session1Trials, aes(flash_time_diff, respond_longer)) +
+  geom_point(position = position_jitter(height = 0.1)) +
+  geom_smooth(aes(group=period_ms, color=as.factor(period_ms)))
+```
+
+Sorta looks right.
+
+```{r}
+session1Trials %>%
+  group_by(flash_time_diff) %>%
+  summarize(prob_longer = mean(respond_longer)) %>%
+  ggplot(aes(flash_time_diff, prob_longer)) +
+  geom_line()
+```
+
+I'm going to run a couple more sessions with this timing before changing anything. 2017-05-30
+
