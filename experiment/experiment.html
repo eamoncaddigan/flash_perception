@@ -28,29 +28,29 @@
 
     var trials = [];
     for (var period_ms = 1400; period_ms <= 1800; period_ms += 200) {
-      var later_flash_ms = duty_cycle * period_ms;
+      var on_flash_ms = duty_cycle * period_ms;
       var off_flash_ms = (1-duty_cycle) * period_ms;
 
-      for (var first_flash_ms = 650;
-           first_flash_ms <= 950;
+      for (var first_flash_ms = on_flash_ms - 300;
+           first_flash_ms <= on_flash_ms + 300;
            first_flash_ms += 40) {
         // First flash
         var trial = [first_flash_ms, off_flash_ms];
 
         // Subsequent flashes
         for (var i = 1; i < number_flashes; i++) {
-          trial.push(later_flash_ms);
+          trial.push(on_flash_ms);
           trial.push(off_flash_ms);
         }
 
         trials.push({
           timing_stim: trial,
-          timing_response: first_flash_ms + off_flash_ms + 
+          timing_response: first_flash_ms + off_flash_ms +
             period_ms*(number_flashes-1) + timeout_ms,
-          data: { 
+          data: {
             period_ms: period_ms,
             first_flash_ms: first_flash_ms,
-            flash_time_diff: first_flash_ms - later_flash_ms
+            flash_time_diff: first_flash_ms - on_flash_ms
           }
         })
       }
@@ -94,7 +94,7 @@
         var response_times = JSON.parse(data.rt);
         var key_presses = JSON.parse(data.key_press);
         if (key_presses.length > 0) {
-          /* Determine longer/shrter response */
+          /* Determine longer/shorter response */
           if (key_presses[0] == 70) {
             resp_longer = false;
           } else if (key_presses[0] == 74) {
@@ -103,7 +103,7 @@
 
           /* Find the "true" response time */
           if (response_times[0] > -1) {
-            resp_time = response_times[0] - 
+            resp_time = response_times[0] -
               (data.first_flash_ms + data.period_ms);
           }
         }
@@ -140,7 +140,7 @@
     type: "text",
     text: "<p>In this experiment, you will see a circle flicker " +
       number_flashes + " times. " +
-      "The first flicker will have a slightly different duration than the rest.</p>" + 
+      "The first flicker will have a slightly different duration than the rest.</p>" +
       "<p>Your task is to indicate whether the duration of the first flicker in the sequence was longer or shorter than the remaining flickers.</p>" +
       task_instructions + "<p>Press any key to continue.</p>",
     timing_post_trial: post_trial_gap
@@ -168,7 +168,7 @@
 
   for (var i = 0; i < number_trials; i += break_every) {
     // Add the trials
-    var sub_block = createTestBlock(all_trials.slice(i, 
+    var sub_block = createTestBlock(all_trials.slice(i,
       Math.min(number_trials, i+break_every)));
     timeline.push(sub_block);
 
