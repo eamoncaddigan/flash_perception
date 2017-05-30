@@ -16,8 +16,8 @@
   </body>
   <script>
 
-  var number_trials = 3*16*10;
-  var break_every = 16;
+  var number_trials = 3*16*4;
+  var break_every = 3*16;
   var number_flashes = 4;
 
   /* Create the timing info for all trials */
@@ -31,8 +31,8 @@
       var later_flash_ms = duty_cycle * period_ms;
       var off_flash_ms = (1-duty_cycle) * period_ms;
 
-      for (var first_flash_ms = later_flash_ms - 300;
-           first_flash_ms <= later_flash_ms + 300;
+      for (var first_flash_ms = 650;
+           first_flash_ms <= 950;
            first_flash_ms += 40) {
         // First flash
         var trial = [first_flash_ms, off_flash_ms];
