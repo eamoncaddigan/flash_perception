@@ -5,6 +5,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="jspsych/jspsych.js"></script>
     <script src="jspsych/plugins/jspsych-text.js"></script>
+    <script src="jspsych/plugins/jspsych-fullscreen.js"></script>
     <script src="jspsych/plugins/jspsych-multi-stim-multi-response.js"></script>
     <link href="jspsych/css/jspsych.css" rel="stylesheet" type="text/css"></link>
   </head>
@@ -117,28 +118,28 @@
     return Math.floor( Math.random() * 1500 ) + 750;
   };
 
-  var welcome_block = {
-    type: "text",
-    text: "Welcome to the experiment. Press any key to start."
-  };
+  var task_instructions = "<p>If the <strong>first flicker</strong> was " +
+    "<strong>shorter</strong> (faster) than the rest, press the " +
+    "<strong>F</strong> key.</p>" +
+    "<p>If the <strong>first flicker</strong> was " +
+    "<strong>longer</strong> (slower) than the rest, press the " +
+    "<strong>J</strong> key.</p>" 
 
   var instructions_block = {
     type: "text",
-    text: "<p>In this experiment, you will see a flashing light strobe " +
-      number_flashes + 
-      " times. Your task is to indicate whether the duration of the first flash was longer or shorter than the rest of the flashes.</p>" +
-      "<p>If the <strong>first flash</strong> was <strong>shorter</strong> than the rest, press the <strong>F</strong> key.</p>" +
-      "<p>If the <strong>first flash</strong> was <strong>longer</strong> than the rest, press the <strong>J</strong> key.</p>" +
-      "<p>Press any key to continue.</p>",
+    text: "<p>Welcome to the experiment!</p>" +
+      "<p>In this experiment, you will see a circle flicker " +
+      number_flashes + " times. " +
+      "The first flicker will have a slightly different duration than the rest.</p>" + 
+      "<p>Your task is to indicate whether the duration of the first flicker was longer or shorter than the rest of the flickers.</p>" +
+      task_instructions + "<p>Press any key to continue.</p>",
     timing_post_trial: post_trial_gap
   };
 
   var break_block = {
     type: "text",
-    text: "<p>Break time.</p>" +
-      "<p>If the <strong>first flash</strong> was <strong>shorter</strong> than the rest, press the <strong>F</strong> key.</p>" +
-      "<p>If the <strong>first flash</strong> was <strong>longer</strong> than the rest, press the <strong>J</strong> key.</p>" +
-      "<p>Press any key to continue.</p>",
+    text: "<p>Break time. Remember:</p>" +
+      task_instructions + "<p>Press any key to continue.</p>",
     timing_post_trial: post_trial_gap
   }
 
@@ -151,8 +152,13 @@
   /* Create the timeline */
   var all_trials = createTrials();
   var timeline = [];
-  timeline.push(welcome_block);
+
   timeline.push(instructions_block);
+  timeline.push({
+    type: 'fullscreen',
+    fullscreen_mode: true
+  });
+
   for (var i = 0; i < number_trials; i += break_every) {
     // Add the trials
     var sub_block = createTestBlock(all_trials.slice(i, 
@@ -164,7 +170,12 @@
       timeline.push(break_block);
     }
   }
+
   timeline.push(finish_block);
+  timeline.push({
+    type: 'fullscreen',
+    fullscreen_mode: false
+  });
 
   jsPsych.init({
     timeline: timeline,
