@@ -16,7 +16,7 @@
   </body>
   <script>
 
-  var number_trials = 3*16*4;
+  var number_trials = 3;//*16*4;
   var break_every = 3*16;
   var number_flashes = 4;
 
@@ -80,6 +80,7 @@
 
   / * Create a trial object that will represent a group of trials */
   function createTestBlock(trials) {
+    localStorage.trials = JSON.stringify(trials);  
     return {
       type: 'multi-stim-multi-response',
       stimuli: createStimuli(),
@@ -90,9 +91,9 @@
       on_finish: function(data) {
         var resp_longer = null;
         var resp_time = null;
-
         var response_times = JSON.parse(data.rt);
         var key_presses = JSON.parse(data.key_press);
+
         if (key_presses.length > 0) {
           /* Determine longer/shorter response */
           if (key_presses[0] == 70) {
@@ -112,9 +113,76 @@
           respond_longer: resp_longer,
           response_time: resp_time
         });
+        
+        if (key_presses[0] == 70) localStorage.psychData = jsPsych.data.get().json();
       },
       timeline: trials
     }
+  }
+  
+  function savedDataIndex()
+  {
+      return JSON.parse(localStorage.psychData).filter(function(el){if(el.stimulus)return 1;}).length-1;
+  }
+  
+  function reloadData()
+  {
+    var loaded_trials = JSON.parse(localStorage.trials);
+    timeline= [continue_block];
+    var loaded_index = savedDataIndex();
+    for (var i = loaded_index; i < number_trials; i += break_every) {
+        // Add the trials
+        var sub_block = createTestBlock(loaded_trials.slice(i,
+                      Math.min(number_trials, i + break_every)));
+        timeline.push(sub_block);
+
+        // Add the break
+        if ((i + break_every) < number_trials) {
+            timeline.push(break_block);
+        }
+    }
+
+    timeline.push(finish_block);
+    timeline.push({
+        type: 'fullscreen',
+        fullscreen_mode: false
+        });
+
+    jsPsych.init({
+            timeline: timeline,
+            on_finish: function () {
+                jsPsych.data.displayData();
+            },
+            on_trial_start: function () {
+                JSON.parse(localStorage.psychData).filter(function(el){
+                    if(el.stimulus){
+                        jsPsych.data.addDataToLastTrial({
+                            respond_longer: el.resp_longer,
+                            response_time: el.resp_time
+                        });
+                    }
+                });
+                
+            }
+        });
+    }
+    
+  function canLoadData()
+  {
+      var savedIndex = savedDataIndex();
+      if (savedIndex > 0 && savedIndex < number_trials)
+      {
+          return "<p>Incomplete session data detected!</p>" +
+                 "<p>Want to resume old session?</p>" +
+                 "<p><button class=\"jspsych-btn\" onclick=\"reloadData()\">Yes</button></p>" + 
+                 "<p>or</p>";
+      }
+      return "";
+  }
+  
+  function exportData()
+  {
+      jsPsych.data.get().localSave("json","experiment_"+new Date().getTime()+".json");
   }
 
   var post_trial_gap = function() {
@@ -145,6 +213,7 @@
       task_instructions +
       "<p>The flicker duration will vary between trials. " +
       "It's important to watch multiple flickers before you respond.</p>" +
+      canLoadData() +
       "<p>Press any key to continue.</p>",
     timing_post_trial: post_trial_gap
   };
@@ -158,7 +227,16 @@
 
   var finish_block = {
     type: "text",
-    text: "Thank you for participating!"
+    text: "<p>Thank you for participating!</p>" +
+          "<p><br></p>" +
+          "<p>Download current session data?</p>" +
+          "<p><button class=\"jspsych-btn\" onclick=\"exportData()\">Download</button></p>"
+  }
+  
+  var continue_block = {
+    type: "text",
+    text: "<p>Get ready to resume...</p>" + 
+          "<p>Press any key to continue.</p>",
   }
 
 
@@ -166,7 +244,7 @@
   var all_trials = createTrials();
   var timeline = [];
 
-  timeline.push(welcome_block)
+  timeline.push(welcome_block);
   timeline.push(instructions_block);
 
   for (var i = 0; i < number_trials; i += break_every) {
